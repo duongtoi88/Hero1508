@@ -3,58 +3,73 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nối Thú Cổ Điển – HTML5 MVP</title>
+  <title>Nối Thú Cổ Điển – 1-file (assets + path)</title>
   <style>
     :root{
-      --cell:64px;
-      --gap:8px;
-      --bg:#0f172a; /* slate-900 */
-      --panel:#111827; /* gray-900 */
-      --card:#1f2937; /* gray-800 */
-      --txt:#e5e7eb; /* gray-200 */
-      --accent:#22d3ee; /* cyan-400 */
-      --good:#34d399; /* green-400 */
-      --warn:#f59e0b; /* amber-500 */
-      --bad:#fb7185; /* rose-400 */
+      --cell:64px; --gap:8px;
+      --panel:#111827; --card:#1f2937; --txt:#e5e7eb;
+      --accent:#22d3ee; --border:#2b3345;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 800px at 20% 10%,#1e293b 0%,#0b1222 60%,#030712 100%);color:var(--txt)}
-    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #2b3345;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
-    .title{font-size:20px;font-weight:700;letter-spacing:.3px}
-    .stats{display:flex;gap:14px;align-items:center}
-    .badge{padding:6px 10px;border-radius:999px;background:var(--card);border:1px solid #2b3345;min-width:84px;text-align:center}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 20% 10%,#1e293b 0%,#0b1222 60%,#030712 100%);
+      color:var(--txt);
+    }
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;
+      padding:16px 20px;border-bottom:1px solid var(--border);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+    .title{font-size:20px;font-weight:700}
+    .stats{display:flex;gap:14px}
+    .badge{padding:6px 10px;border-radius:999px;background:var(--card);border:1px solid var(--border)}
     .badge b{color:var(--accent)}
     main{display:grid;grid-template-columns:320px 1fr;gap:16px;max-width:1200px;margin:18px auto;padding:0 16px 32px}
-    @media (max-width: 980px){main{grid-template-columns:1fr}}
-    .side{background:var(--panel);border:1px solid #2b3345;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
-    .side h2{margin:0 0 6px 0;font-size:16px;color:#c7d2fe}
+    @media (max-width:980px){main{grid-template-columns:1fr}}
+    .side{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+    .side h2{margin:0 0 6px;font-size:16px;color:#c7d2fe}
     .controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    button{appearance:none;border:none;background:var(--card);color:var(--txt);padding:10px 12px;border-radius:12px;border:1px solid #2b3345;cursor:pointer;transition:transform .05s ease,background .15s}
-    button:hover{background:#243044}
-    button:active{transform:translateY(1px)}
-    .primary{background:linear-gradient(180deg,#0ea5e9,#0284c7);border-color:#075985}
-    .good{background:linear-gradient(180deg,#10b981,#059669);border-color:#065f46}
-    .warn{background:linear-gradient(180deg,#f59e0b,#d97706);border-color:#92400e}
-    .bad{background:linear-gradient(180deg,#fb7185,#e11d48);border-color:#9f1239}
-    .board-wrap{display:flex;align-items:center;justify-content:center}
-    .board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);gap:var(--gap);padding:12px;border-radius:18px;background:rgba(17,24,39,.6);border:1px solid #2b3345;backdrop-filter: blur(6px);}
-    .tile{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:34px;border-radius:14px;background:#0b1020;border:1px solid #2b3345;box-shadow: inset 0 -4px 0 rgba(255,255,255,.04)}
+    button{appearance:none;border:none;background:var(--card);color:var(--txt);
+      padding:10px 12px;border-radius:12px;border:1px solid var(--border);cursor:pointer}
+    button:hover{background:#243044} button:active{transform:translateY(1px)}
+    .warn{background:linear-gradient(180deg,#f59e0b,#d97706)} .bad{background:linear-gradient(180deg,#fb7185,#e11d48)}
+    .primary{background:linear-gradient(180deg,#0ea5e9,#0284c7)}
+    .board-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+    .board{
+      position:relative;display:grid;
+      grid-template-columns:repeat(var(--cols),var(--cell));
+      grid-auto-rows:var(--cell); gap:var(--gap);
+      padding:12px;border-radius:18px;background:rgba(17,24,39,.6);
+      border:1px solid var(--border);backdrop-filter:blur(6px)
+    }
+    .tile{
+      width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;
+      border-radius:14px;background:#0b1020;border:1px solid var(--border)
+    }
+    .tile img{width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
     .tile.obstacle{background:#1b2336}
-    .tile .id{display:none}
     .tile.sel{outline:3px solid var(--accent);filter:drop-shadow(0 0 8px rgba(34,211,238,.35))}
     .tile.matched{opacity:.2;transform:scale(.9)}
-    .path{position:absolute;inset:0;pointer-events:none}
-    .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#111827;border:1px solid #2b3345;padding:8px 12px;border-radius:999px;color:var(--txt);opacity:0;transition:opacity .2s, transform .2s;}
+    .legend{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+    .progress{height:8px;background:#0b1020;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#34d399,#22d3ee)}
+    .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);
+      background:#111827;border:1px solid var(--border);padding:8px 12px;border-radius:999px;opacity:0;
+      transition:opacity .2s,transform .2s}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
-    .legend{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;font-size:20px}
-    .footer{opacity:.7;font-size:12px;margin-top:auto}
-    .progress{height:8px;background:#0b1020;border:1px solid #2b3345;border-radius:999px;overflow:hidden}
-    .bar{height:100%;width:0;background:linear-gradient(90deg,#34d399,#22d3ee);}
+    .path{position:absolute;inset:0;pointer-events:none}
+    .sep{height:1px;background:var(--border);margin:6px 0 10px}
+    .toggle{display:flex;align-items:center;gap:8px}
+    .sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+    button:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
+    :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:12px}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);z-index:20}
+    .overlay-card{background:#0b1020;border:1px solid var(--border);border-radius:16px;padding:18px;min-width:280px;max-width:90vw}
+    .overlay-card .row{display:flex;gap:10px;margin:8px 0 6px}
   </style>
 </head>
 <body>
   <header>
-    <div class="title">🐾 Nối Thú Cổ Điển – HTML5</div>
+    <div class="title">🐾 Nối Thú Cổ Điển – 1-file</div>
     <div class="stats">
       <div class="badge">Level: <b id="level">1</b>/7</div>
       <div class="badge">Điểm: <b id="score">0</b></div>
@@ -78,418 +93,394 @@
         <h2>Tiến độ</h2>
         <div class="progress"><div id="timebar" class="bar"></div></div>
       </div>
-      <div class="footer">MVP bám theo GDD: 10x8, tối đa 2 góc rẽ, combo 2s có thưởng, 7 level (vật cản từ Lv4), quy đổi thời gian thành điểm khi hoàn thành.</div>
+
+      <div class="sep"></div>
+      <h2>Cài đặt</h2>
+      <label class="toggle"><input id="optAutoShuffle" type="checkbox" checked /> <span>Tự xáo trộn khi bí</span></label>
+      <label class="toggle"><input id="optFastTimer" type="checkbox" /> <span>Timer nhanh (debug)</span></label>
+      <div id="srLive" class="sr-only" aria-live="polite"></div>
+
+      <div class="footer">Dùng ảnh assets + hiển thị đường nối (SVG)</div>
     </section>
 
     <section class="board-wrap">
-      <div class="board" id="board" style="--cols: 8"></div>
+      <div class="board" id="board" style="--cols: 8" role="grid" aria-label="Bàn chơi nối thú"></div>
+      <svg class="path" id="pathLayer"></svg>
     </section>
   </main>
 
   <div class="toast" id="toast"></div>
 
+  <div id="overlay" class="overlay" hidden>
+    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="pausedTitle">
+      <h3 id="pausedTitle">Tạm dừng</h3>
+      <p>Nhấn <kbd>P</kbd> hoặc “Tiếp tục”.</p>
+      <div class="row">
+        <button id="btnResume" class="primary">Tiếp tục</button>
+        <button id="btnRestart2" class="bad">Chơi lại</button>
+      </div>
+      <p class="hint">Phím tắt: <kbd>P</kbd> pause, <kbd>H</kbd> hint, <kbd>R</kbd> restart</p>
+    </div>
+  </div>
+
   <script>
-  // ---- CẤU HÌNH LEVEL & ICONS ----
-  const ROWS = 10, COLS = 8;
-  const ICONS = [
-    '🐱','🐶','🐰','🐼','🐟','🐧','🐘','🦒','🦁','🐵','🦉','🦊','🦓','🐆','🐍'
-  ];
-  const OBSTACLE = '🪨';
+    // ====== CẤU HÌNH SỬ DỤNG ẢNH TỪ assets/ + VẼ ĐƯỜNG NỐI ======
+    const ROWS=10, COLS=8;
+    const ICON_IDS = Array.from({length:15}, (_,i)=> i+1);
+    const OBSTACLE = -1;
+    const ASSET = { iconUrl: id => `assets/icon_${id}.png`, obstacleUrl: `assets/obstacle.png` };
 
-  const LEVELS = [
-    { time:150, types:5,  obstacles:0,  shuffles:3, bg:'grass' },
-    { time:120, types:7,  obstacles:0,  shuffles:3, bg:'forest' },
-    { time:100, types:9,  obstacles:0,  shuffles:3, bg:'ocean' },
-    { time:85,  types:11, obstacles:8,  shuffles:3, bg:'city' },
-    { time:70,  types:13, obstacles:12, shuffles:3, bg:'space' },
-    { time:60,  types:14, obstacles:16, shuffles:2, bg:'desert' },
-    { time:50,  types:15, obstacles:22, shuffles:2, bg:'temple' },
-  ];
+    const LEVELS = [
+      { time:150, types:5,  obstacles:0,  shuffles:3 },
+      { time:120, types:7,  obstacles:0,  shuffles:3 },
+      { time:100, types:9,  obstacles:0,  shuffles:3 },
+      { time:85,  types:11, obstacles:8,  shuffles:3 },
+      { time:70,  types:13, obstacles:12, shuffles:3 },
+      { time:60,  types:14, obstacles:16, shuffles:2 },
+      { time:50,  types:15, obstacles:22, shuffles:2 },
+    ];
 
-  // ---- TRẠNG THÁI GAME ----
-  const state = {
-    level: 1,
-    score: 0,
-    combo: 0,
-    timeLeft: 0,
-    timerId: null,
-    comboTimerId: null,
-    lastMatchAt: 0,
-    shufflesLeft: 0,
-    grid: [],       // dùng ma trận có viền rỗng để hỗ trợ đi ngoài rìa
-    raw: [],        // ma trận hiển thị (không viền)
-    lock: false,
-    sel: null,
-  };
+    // ====== TRẠNG THÁI ======
+    const state = {
+      level: 1, score: 0, combo: 0,
+      timeLeft: 0, timerId: null, lastMatchAt: 0,
+      shufflesLeft: 0, grid: [], raw: [], sel: null, lock:false,
+      // v0.2
+      paused:false, autoShuffle:true, fastTimer:false, autoShuffleTimerId:null
+    };
 
-  const board = document.getElementById('board');
-  const $level = document.getElementById('level');
-  const $score = document.getElementById('score');
-  const $combo = document.getElementById('combo');
-  const $time  = document.getElementById('time');
-  const $timebar = document.getElementById('timebar');
-  const $toast = document.getElementById('toast');
-  const $shuffles = document.getElementById('shuffles');
+    // ====== DOM ======
+    const board=document.getElementById('board'), pathLayer=document.getElementById('pathLayer');
+    const $level=document.getElementById('level'), $score=document.getElementById('score'), $combo=document.getElementById('combo');
+    const $time=document.getElementById('time'), $timebar=document.getElementById('timebar'), $toast=document.getElementById('toast');
+    const $shuffles=document.getElementById('shuffles'), $overlay=document.getElementById('overlay');
+    const $btnResume=document.getElementById('btnResume'), $btnRestart2=document.getElementById('btnRestart2');
+    const $optAutoShuffle=document.getElementById('optAutoShuffle'), $optFastTimer=document.getElementById('optFastTimer'), $srLive=document.getElementById('srLive');
 
-  // ---- TIỆN ÍCH ----
-  const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-  const shuffle=inArr=>{const a=[...inArr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-  const now=()=>performance.now();
+    // ====== TIỆN ÍCH ======
+    const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+    const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+    const now=()=>performance.now();
+    function speak(m){ if($srLive) $srLive.textContent=m; }
+    function toast(m){ $toast.textContent=m; $toast.classList.add('show'); speak(m); setTimeout(()=> $toast.classList.remove('show'), 1200); }
 
-  function toast(msg){
-    $toast.textContent=msg; $toast.classList.add('show');
-    setTimeout(()=> $toast.classList.remove('show'), 1200);
-  }
+    // LocalStorage
+    const LS={BEST:'onet_bestScore',LAST:'onet_lastLevel',OPTS:'onet_options'};
+    function saveBest(s){const c=Number(localStorage.getItem(LS.BEST)||0); if(s>c){localStorage.setItem(LS.BEST,String(s)); toast(`🏆 Best mới: ${s}`);} }
+    function saveLastLevel(l){localStorage.setItem(LS.LAST,String(l));}
+    function saveOptions(){localStorage.setItem(LS.OPTS, JSON.stringify({autoShuffle:state.autoShuffle,fastTimer:state.fastTimer}));}
+    function loadPersist(){
+      const last=Number(localStorage.getItem(LS.LAST)||1);
+      const opts=JSON.parse(localStorage.getItem(LS.OPTS)||'{}');
+      if(last>=1 && last<=LEVELS.length) state.level=last;
+      if(opts.autoShuffle!==undefined){state.autoShuffle=!!opts.autoShuffle; $optAutoShuffle.checked=state.autoShuffle;}
+      if(opts.fastTimer!==undefined){state.fastTimer=!!opts.fastTimer; $optFastTimer.checked=state.fastTimer;}
+    }
 
-  // ---- KHỞI TẠO LEVEL ----
-  function startLevel(n){
-    state.level = n;
-    const cfg = LEVELS[n-1];
-    $level.textContent = n;
-    state.combo = 0; updateCombo();
-    state.timeLeft = cfg.time; updateTime();
-    state.shufflesLeft = cfg.shuffles; $shuffles.textContent = state.shufflesLeft;
+    // ====== KHỞI TẠO LEVEL ======
+    function startLevel(n){
+      state.level=n; const cfg=LEVELS[n-1];
+      $level.textContent=n; state.combo=0; updateCombo();
+      state.timeLeft=cfg.time; updateTime(); state.shufflesLeft=cfg.shuffles; $shuffles.textContent=state.shufflesLeft;
 
-    // Tạo danh sách cặp biểu tượng
-    const pairsCount = Math.floor((ROWS*COLS - cfg.obstacles)/2);
-    const set = ICONS.slice(0, cfg.types);
-    const pairs=[];
-    for(let i=0;i<pairsCount;i++){ const icon=set[i%set.length]; pairs.push(icon,icon); }
-    const cells = shuffle(pairs);
+      // tạo cặp ID
+      const pairsCount = Math.floor((ROWS*COLS - cfg.obstacles)/2);
+      const set = ICON_IDS.slice(0, cfg.types);
+      const pairs=[];
+      for(let i=0;i<pairsCount;i++){ const id=set[i%set.length]; pairs.push(id,id); }
+      const cells = shuffle(pairs);
 
-    // Chèn vật cản
-    let obstacles = cfg.obstacles;
-    while(obstacles-->0){ const pos = randInt(0, ROWS*COLS-1); cells.splice(pos,0,OBSTACLE); }
-    // Nếu thừa ô (do chèn obstacles), cắt bớt cuối để khớp kích thước
-    const flat = cells.slice(0, ROWS*COLS);
+      // chèn obstacle
+      let obstacles=cfg.obstacles;
+      while(obstacles-->0){ const pos=randInt(0, ROWS*COLS-1); cells.splice(pos,0,OBSTACLE); }
+      const flat = cells.slice(0, ROWS*COLS);
 
-    // Đưa vào ma trận hiển thị
-    state.raw = Array.from({length:ROWS},(_,r)=> flat.slice(r*COLS,(r+1)*COLS));
+      // raw & grid (có viền)
+      state.raw = Array.from({length:ROWS},(_,r)=> flat.slice(r*COLS,(r+1)*COLS));
+      state.grid=Array.from({length:ROWS+2},()=>Array(COLS+2).fill(''));
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
 
-    // Tạo ma trận có viền rỗng (padding 1) để hỗ trợ nối vòng ngoài
-    state.grid = Array.from({length:ROWS+2},()=>Array(COLS+2).fill(''));
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
+      draw();
+      resetTimer();
+    }
 
-    draw();
-    resetTimer();
-  }
+    // ====== VẼ BOARD (dùng ảnh assets) ======
+    function draw(){
+      board.innerHTML='';
+      board.style.setProperty('--cols', COLS);
+      pathLayer.innerHTML='';
+      pathLayer.setAttribute('viewBox',`0 0 ${(COLS)*(64+8)} ${(ROWS)*(64+8)}`);
 
-  function draw(){
-    board.innerHTML='';
-    board.style.setProperty('--cols', COLS);
-    // layer path
-    const pathLayer = document.createElement('svg');
-    pathLayer.className='path'; pathLayer.setAttribute('viewBox',`0 0 ${(COLS)*(64+8)} ${(ROWS)*(64+8)}`);
-    board.appendChild(pathLayer);
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          const val = state.raw[r][c];
+          const div = document.createElement('div');
+          div.className='tile';
+          div.dataset.r=r; div.dataset.c=c;
+          div.setAttribute('role','gridcell');
 
-    for(let r=0;r<ROWS;r++){
-      for(let c=0;c<COLS;c++){
-        const val = state.raw[r][c];
-        const div = document.createElement('div');
-        div.className='tile';
-        if(val==='') { div.style.visibility='hidden'; }
-        else if(val===OBSTACLE){ div.classList.add('obstacle'); div.textContent=OBSTACLE; }
-        else { div.textContent=val; }
-        div.dataset.r=r; div.dataset.c=c;
-        div.addEventListener('click', onClickTile);
-        board.appendChild(div);
+          if(val==='' || val===undefined){ div.style.visibility='hidden'; }
+          else if(val===OBSTACLE){
+            const img=document.createElement('img');
+            img.alt='Obstacle'; img.src=ASSET.obstacleUrl;
+            // fallback: nếu thiếu ảnh obstacle, hiện chữ 🪨
+            img.onerror=()=>{ img.remove(); div.textContent='🪨'; };
+            div.classList.add('obstacle'); div.appendChild(img);
+          } else {
+            const img=document.createElement('img');
+            img.alt=`icon_${val}`; img.src=ASSET.iconUrl(val);
+            // fallback: nếu thiếu ảnh icon, hiện số ID
+            img.onerror=()=>{ img.remove(); div.textContent=`${val}`; };
+            div.appendChild(img);
+          }
+
+          div.addEventListener('click', onClickTile);
+          board.appendChild(div);
+        }
       }
     }
-  }
 
-  function onClickTile(e){
-    if(state.lock) return;
-    const r = +e.currentTarget.dataset.r;
-    const c = +e.currentTarget.dataset.c;
-    const v = state.raw[r][c];
-    if(!v || v===OBSTACLE) return;
-
-    if(!state.sel){
-      state.sel = {r,c,v,el:e.currentTarget};
-      e.currentTarget.classList.add('sel');
-      return;
-    }
-
-    const a=state.sel, b={r,c,v,el:e.currentTarget};
-    if(a.r===b.r && a.c===b.c){ // hủy chọn
-      a.el.classList.remove('sel');
-      state.sel=null; return;
-    }
-
-    if(a.v!==b.v){ // đổi chọn
-      a.el.classList.remove('sel');
-      state.sel=b; b.el.classList.add('sel'); return;
-    }
-
-    // thử nối
-    const path = canConnect(a.r+1,a.c+1,b.r+1,b.c+1); // dùng tọa độ có padding
-    if(path){
-      drawPath(path);
-      match(a,b);
-    } else {
-      toast('Không nối được!');
-      a.el.classList.remove('sel');
-      state.sel=b; b.el.classList.add('sel');
-    }
-  }
-
-  function drawPath(nodes){
-    const svg = board.querySelector('svg.path');
-    svg.innerHTML='';
-    const g = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-    g.setAttribute('fill','none');
-    g.setAttribute('stroke','url(#grad)');
-    g.setAttribute('stroke-width','6');
-    const pts = nodes.map(([R,C])=>{
-      const x = (C-1)*(64+8)+32+12; // 64 cell + 8 gap + 12 board padding
-      const y = (R-1)*(64+8)+32+12;
-      return `${x},${y}`;
-    }).join(' ');
-    g.setAttribute('points', pts);
-
-    const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-    const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
-    grad.id='grad'; grad.setAttribute('x1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y1','0%');grad.setAttribute('y2','0%');
-    const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#34d399');
-    const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#22d3ee');
-    grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);svg.appendChild(defs);
-
-    svg.appendChild(g);
-    setTimeout(()=> svg.innerHTML='', 280);
-  }
-
-  function match(a,b){
-    // xóa
-    state.raw[a.r][a.c]='';
-    state.raw[b.r][b.c]='';
-    state.grid[a.r+1][a.c+1]='';
-    state.grid[b.r+1][b.c+1]='';
-
-    a.el.classList.remove('sel');
-    a.el.classList.add('matched');
-    b.el.classList.add('matched');
-    state.sel=null;
-
-    // điểm + combo
-    const base=10;
-    const t = now();
-    if(t - state.lastMatchAt <= 2000){ state.combo++; }
-    else { state.combo=1; }
-    state.lastMatchAt=t;
-
-    let bonus=0;
-    if(state.combo===1) bonus=0;          // 10
-    else if(state.combo===2) bonus=10;    // 20
-    else if(state.combo===3) bonus=20;    // 30
-    else if(state.combo===4) { bonus=30; addTime(5); toast('+5s ✨ Combo 4'); }
-    else if(state.combo>=5) bonus=40;     // 50
-
-    state.score += base + bonus;
-    updateScore(); updateCombo();
-
-    // nén xuống dưới
-    applyGravity();
-    draw();
-
-    // thắng?
-    if(isBoardCleared()){
-      levelClear();
-    }
-  }
-
-  function applyGravity(){
-    for(let c=0;c<COLS;c++){
-      let stack=[]; // từ dưới lên
-      for(let r=ROWS-1;r>=0;r--){
-        const v=state.raw[r][c];
-        if(v==='') continue; // ô trống
-        stack.push(v);
-      }
-      // đổ lại từ dưới
-      for(let r=ROWS-1;r>=0;r--){
-        state.raw[r][c] = stack[ROWS-1-r] ?? '';
-      }
-    }
-    // cập nhật grid có viền
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
-  }
-
-  function isBoardCleared(){
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-      const v=state.raw[r][c]; if(v && v!==OBSTACLE) return false;
-    }
-    return true;
-  }
-
-  function levelClear(){
-    stopTimer();
-    const remain = Math.max(0, state.timeLeft);
-    const bonus = remain*10; // quy đổi thời gian x10
-    state.score += bonus; updateScore();
-    toast(`Hoàn thành level! +${bonus} điểm thời gian`);
-
-    if(state.level<LEVELS.length){
-      setTimeout(()=> startLevel(state.level+1), 900);
-    } else {
-      setTimeout(()=> alert(`🎉 Bạn đã thắng game! Tổng điểm: ${state.score}`), 600);
-    }
-  }
-
-  // ---- TIMER ----
-  function resetTimer(){
-    stopTimer();
-    const total = LEVELS[state.level-1].time;
-    const start = performance.now();
-    state.timerId = setInterval(()=>{
-      const dt = Math.floor((performance.now()-start)/1000);
-      state.timeLeft = Math.max(0, total - dt);
-      updateTime();
-      if(state.timeLeft<=0){ gameOver(); }
-    }, 250);
-  }
-  function stopTimer(){ if(state.timerId){ clearInterval(state.timerId); state.timerId=null; }}
-  function addTime(s){ state.timeLeft += s; updateTime(true); }
-  function updateTime(boost=false){
-    $time.textContent = state.timeLeft;
-    const cfg = LEVELS[state.level-1];
-    const p = Math.max(0, Math.min(1, state.timeLeft / cfg.time));
-    $timebar.style.width = (p*100)+"%";
-    if(boost){ $timebar.animate([{transform:'scaleY(1.0)'},{transform:'scaleY(1.3)'}],{duration:180}); }
-  }
-
-  function updateScore(){ $score.textContent = state.score; }
-  function updateCombo(){ $combo.textContent = state.combo; }
-
-  function gameOver(){
-    stopTimer();
-    alert('⏰ Hết thời gian! Thua cuộc.');
-    startLevel(1); state.score=0; updateScore();
-  }
-
-  // ---- LOGIC NỐI TỐI ĐA 2 GÓC RẼ ----
-  function canConnect(r1,c1,r2,c2){
-    if(r1===r2 && c1===c2) return null;
-    // chỉ nối giữa hai icon giống nhau & không phải obstacle
-    if(state.grid[r1][c1]!==state.grid[r2][c2]) return null;
-    if(state.grid[r1][c1]===OBSTACLE || !state.grid[r1][c1]) return null;
-
-    // 0. tạm thời làm trống hai điểm để kiểm tra đường đi
-    const val = state.grid[r1][c1];
-    state.grid[r1][c1]=''; state.grid[r2][c2]='';
-
-    // A. cùng hàng/cột: đường thẳng
-    if(clearLine(r1,c1,r2,c2)) { restore(); return [[r1,c1],[r2,c2]]; }
-
-    // B. 1 góc (L): thử (r1,c2) và (r2,c1)
-    if(isEmpty(r1,c2) && clearLine(r1,c1,r1,c2) && clearLine(r1,c2,r2,c2)) { restore(); return [[r1,c1],[r1,c2],[r2,c2]]; }
-    if(isEmpty(r2,c1) && clearLine(r1,c1,r2,c1) && clearLine(r2,c1,r2,c2)) { restore(); return [[r1,c1],[r2,c1],[r2,c2]]; }
-
-    // C. 2 góc (Z): duyệt theo cột trung gian & hàng trung gian
-    for(let cc=0; cc<state.grid[0].length; cc++){
-      if(cc===c1||cc===c2) continue;
-      if(isEmpty(r1,cc) && isEmpty(r2,cc) && clearLine(r1,c1,r1,cc) && clearLine(r1,cc,r2,cc) && clearLine(r2,cc,r2,c2)) { restore(); return [[r1,c1],[r1,cc],[r2,cc],[r2,c2]]; }
-    }
-    for(let rr=0; rr<state.grid.length; rr++){
-      if(rr===r1||rr===r2) continue;
-      if(isEmpty(rr,c1) && isEmpty(rr,c2) && clearLine(r1,c1,rr,c1) && clearLine(rr,c1,rr,c2) && clearLine(rr,c2,r2,c2)) { restore(); return [[r1,c1],[rr,c1],[rr,c2],[r2,c2]]; }
-    }
-
-    restore();
-    return null;
-
-    function restore(){ state.grid[r1][c1]=val; state.grid[r2][c2]=val; }
-  }
-
-  function isEmpty(r,c){ return state.grid[r] && state.grid[r][c]===""; }
-
-  function clearLine(r1,c1,r2,c2){
-    if(r1===r2){ // ngang
-      const [a,b] = c1<c2 ? [c1,c2] : [c2,c1];
-      for(let c=a+1;c<b;c++) if(state.grid[r1][c]!=="") return false;
-      return true;
-    }
-    if(c1===c2){ // dọc
-      const [a,b] = r1<r2 ? [r1,r2] : [r2,r1];
-      for(let r=a+1;r<b;r++) if(state.grid[r][c1]!=="") return false;
-      return true;
-    }
-    return false; // chỉ kiểm tra đường thẳng
-  }
-
-  // ---- HINT & SHUFFLE ----
-  function findAnyPair(){
-    // duyệt tất cả cặp có thể nối (tối đa vài trăm, OK)
-    for(let r1=0;r1<ROWS;r1++) for(let c1=0;c1<COLS;c1++){
-      const v=state.raw[r1][c1]; if(!v || v===OBSTACLE) continue;
-      for(let r2=r1;r2<ROWS;r2++) for(let c2=0;c2<COLS;c2++){
-        if(r1===r2 && c2<=c1) continue;
-        if(state.raw[r2][c2]!==v) continue;
-        const path=canConnect(r1+1,c1+1,r2+1,c2+1);
-        if(path) return {r1,c1,r2,c2,path};
-      }
-    }
-    return null;
-  }
-
-  function hint(){
-    const p = findAnyPair();
-    if(!p){ toast('Không còn nước đi!'); return; }
-    // highlight
-    const idx1 = p.r1*COLS + p.c1;
-    const idx2 = p.r2*COLS + p.c2;
-    const tiles = [...board.querySelectorAll('.tile')];
-    tiles[idx1].classList.add('sel'); tiles[idx2].classList.add('sel');
-    drawPath(p.path);
-    setTimeout(()=>{ tiles[idx1].classList.remove('sel'); tiles[idx2].classList.remove('sel'); }, 500);
-  }
-
-  function shuffleBoard(force=false){
-    if(!force){
-      if(state.shufflesLeft<=0){ toast('Hết lượt xáo trộn'); return; }
-      state.shufflesLeft--; $shuffles.textContent=state.shufflesLeft;
-    }
-    // gom tất cả icon (trừ obstacle, ô trống)
-    const items=[];
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-      const v=state.raw[r][c]; if(v && v!==OBSTACLE) items.push(v);
-    }
-    const mixed = shuffle(items);
-    let k=0;
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    // ====== CLICK ======
+    function onClickTile(e){
+      if(state.lock || state.paused) return;
+      const r=+e.currentTarget.dataset.r, c=+e.currentTarget.dataset.c;
       const v=state.raw[r][c];
-      if(v===OBSTACLE) continue;
-      if(v!=='') state.raw[r][c]=mixed[k++];
+      if(v==='' || v===undefined || v===OBSTACLE) return;
+
+      if(!state.sel){
+        state.sel={r,c,v,el:e.currentTarget}; e.currentTarget.classList.add('sel'); return;
+      }
+      const a=state.sel, b={r,c,v,el:e.currentTarget};
+      if(a.r===b.r && a.c===b.c){ a.el.classList.remove('sel'); state.sel=null; return; }
+      if(a.v!==b.v){ a.el.classList.remove('sel'); state.sel=b; b.el.classList.add('sel'); return; }
+
+      const path = canConnect(a.r+1,a.c+1,b.r+1,b.c+1);
+      if(path){ drawPath(path); match(a,b); }
+      else { toast('Không nối được!'); a.el.classList.remove('sel'); state.sel=b; b.el.classList.add('sel'); }
     }
-    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
-    draw();
-  }
 
-  // ---- SỰ KIỆN UI ----
-  document.getElementById('btnHint').addEventListener('click', hint);
-  document.getElementById('btnShuffle').addEventListener('click', ()=>{
-    shuffleBoard(false);
-  });
-  document.getElementById('btnPause').addEventListener('click', ()=>{
-    if(state.timerId){ stopTimer(); toast('Đã tạm dừng'); }
-    else { resetTimer(); toast('Tiếp tục'); }
-  });
-  document.getElementById('btnRestart').addEventListener('click', ()=>{
-    state.score=0; updateScore(); startLevel(1);
-  });
+    // ====== VẼ ĐƯỜNG NỐI (SVG overlay) ======
+    function drawPath(nodes){
+      const svg = pathLayer;
+      svg.innerHTML='';
+      const g = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      g.setAttribute('fill','none'); g.setAttribute('stroke','url(#grad)'); g.setAttribute('stroke-width','6');
+      const pts = nodes.map(([R,C])=>{
+        const x=(C-1)*(64+8)+32+12, y=(R-1)*(64+8)+32+12; return `${x},${y}`;
+      }).join(' ');
+      g.setAttribute('points', pts);
 
-  // ---- LEGEND ----
-  (function renderLegend(){
-    const legend=document.getElementById('legend');
-    legend.innerHTML='';
-    for(const ic of ICONS){ const s=document.createElement('div'); s.className='tile'; s.textContent=ic; legend.appendChild(s); }
-    const ob=document.createElement('div'); ob.className='tile obstacle'; ob.textContent=OBSTACLE; legend.appendChild(ob);
-  })();
+      const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+      const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+      grad.id='grad'; grad.setAttribute('x1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y1','0%');grad.setAttribute('y2','0%');
+      const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#34d399');
+      const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#22d3ee');
+      grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad); svg.appendChild(defs);
 
-  // ---- BẮT ĐẦU ----
-  startLevel(1);
-  // đảm bảo luôn có nước đi; nếu không, auto xáo trộn ẩn
-  setInterval(()=>{ if(!findAnyPair()) shuffleBoard(true); }, 2000);
+      svg.appendChild(g);
+      setTimeout(()=> svg.innerHTML='', 280);
+    }
 
+    // ====== MATCH / GRAVITY / WIN ======
+    function match(a,b){
+      state.raw[a.r][a.c]=''; state.raw[b.r][b.c]='';
+      state.grid[a.r+1][a.c+1]=''; state.grid[b.r+1][b.c+1]='';
+      a.el.classList.remove('sel'); a.el.classList.add('matched'); b.el.classList.add('matched'); state.sel=null;
+
+      // điểm + combo
+      const base=10; const t=now();
+      if(t - state.lastMatchAt <= 2000) state.combo++; else state.combo=1;
+      state.lastMatchAt=t;
+      let bonus=0;
+      if(state.combo===2) bonus=10;
+      else if(state.combo===3) bonus=20;
+      else if(state.combo===4){ bonus=30; addTime(5); toast('+5s ✨ Combo 4'); }
+      else if(state.combo>=5) bonus=40;
+      state.score += base + bonus; updateScore(); updateCombo();
+
+      applyGravity(); draw();
+      if(isBoardCleared()) levelClear();
+    }
+    function applyGravity(){
+      for(let c=0;c<COLS;c++){
+        let stack=[];
+        for(let r=ROWS-1;r>=0;r--){ const v=state.raw[r][c]; if(v==='') continue; stack.push(v); }
+        for(let r=ROWS-1;r>=0;r--){ state.raw[r][c]= stack[ROWS-1-r] ?? ''; }
+      }
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
+    }
+    function isBoardCleared(){ for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){ const v=state.raw[r][c]; if(v && v!==OBSTACLE) return false; } return true; }
+    function levelClear(){
+      stopTimer();
+      const remain=Math.max(0,state.timeLeft), bonus=remain*10;
+      state.score+=bonus; updateScore(); toast(`Hoàn thành level! +${bonus} điểm`);
+      saveBest(state.score); saveLastLevel(Math.min(state.level+1, LEVELS.length)); saveOptions();
+      if(state.level<LEVELS.length){ setTimeout(()=> startLevel(state.level+1), 900); }
+      else { setTimeout(()=> alert(`🎉 Thắng game! Tổng điểm: ${state.score}`), 600); }
+    }
+
+    // ====== TIMER ======
+    function resetTimer(resume=false){
+      stopTimer();
+      const cfg=LEVELS[state.level-1], total=resume?state.timeLeft:cfg.time, speed=state.fastTimer?2:1, start=performance.now();
+      state.timerId=setInterval(()=>{
+        if(state.paused) return;
+        const dt=Math.floor((performance.now()-start)/1000)*speed;
+        state.timeLeft=Math.max(0,total-dt); updateTime();
+        if(state.timeLeft<=0) gameOver();
+      },250);
+    }
+    function stopTimer(){ if(state.timerId){ clearInterval(state.timerId); state.timerId=null; } }
+    function addTime(s){ state.timeLeft+=s; updateTime(true); }
+    function updateTime(boost=false){
+      $time.textContent=state.timeLeft;
+      const cfg=LEVELS[state.level-1], p=Math.max(0,Math.min(1,state.timeLeft/cfg.time));
+      $timebar.style.width=(p*100)+'%';
+      if(boost){ $timebar.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.3)'}],{duration:180}); }
+    }
+    function updateScore(){ $score.textContent=state.score; }
+    function updateCombo(){ $combo.textContent=state.combo; }
+    function gameOver(){
+      stopTimer(); alert('⏰ Hết thời gian!');
+      saveBest(state.score); saveLastLevel(1); saveOptions();
+      startLevel(1); state.score=0; updateScore();
+    }
+
+    // ====== LOGIC NỐI (≤ 2 góc rẽ) ======
+    function canConnect(r1,c1,r2,c2){
+      if(r1===r2 && c1===c2) return null;
+      if(state.grid[r1][c1] !== state.grid[r2][c2]) return null;
+      if(state.grid[r1][c1] === OBSTACLE || state.grid[r1][c1] === '' || state.grid[r1][c1] === undefined) return null;
+
+      const val = state.grid[r1][c1];
+      state.grid[r1][c1]=''; state.grid[r2][c2]='';
+
+      if(clearLine(r1,c1,r2,c2)){ restore(); return [[r1,c1],[r2,c2]]; }
+      if(isEmpty(r1,c2) && clearLine(r1,c1,r1,c2) && clearLine(r1,c2,r2,c2)){ restore(); return [[r1,c1],[r1,c2],[r2,c2]]; }
+      if(isEmpty(r2,c1) && clearLine(r1,c1,r2,c1) && clearLine(r2,c1,r2,c2)){ restore(); return [[r1,c1],[r2,c1],[r2,c2]]; }
+
+      for(let cc=0; cc<state.grid[0].length; cc++){
+        if(cc===c1||cc===c2) continue;
+        if(isEmpty(r1,cc) && isEmpty(r2,cc) && clearLine(r1,c1,r1,cc) && clearLine(r1,cc,r2,cc) && clearLine(r2,cc,r2,c2)){
+          restore(); return [[r1,c1],[r1,cc],[r2,cc],[r2,c2]];
+        }
+      }
+      for(let rr=0; rr<state.grid.length; rr++){
+        if(rr===r1||rr===r2) continue;
+        if(isEmpty(rr,c1) && isEmpty(rr,c2) && clearLine(r1,c1,rr,c1) && clearLine(rr,c1,rr,c2) && clearLine(rr,c2,r2,c2)){
+          restore(); return [[r1,c1],[rr,c1],[rr,c2],[r2,c2]];
+        }
+      }
+      restore(); return null;
+
+      function restore(){ state.grid[r1][c1]=val; state.grid[r2][c2]=val; }
+    }
+    function isEmpty(r,c){ return state.grid[r] && state.grid[r][c]===""; }
+    function clearLine(r1,c1,r2,c2){
+      if(r1===r2){
+        const [a,b]=c1<c2?[c1,c2]:[c2,c1];
+        for(let c=a+1;c<b;c++) if(state.grid[r1][c] !== "") return false;
+        return true;
+      }
+      if(c1===c2){
+        const [a,b]=r1<r2?[r1,r2]:[r2,r1];
+        for(let r=a+1;r<b;r++) if(state.grid[r][c1] !== "") return false;
+        return true;
+      }
+      return false;
+    }
+
+    // ====== HINT & SHUFFLE ======
+    function findAnyPair(){
+      for(let r1=0;r1<ROWS;r1++) for(let c1=0;c1<COLS;c1++){
+        const v=state.raw[r1][c1]; if(!v || v===OBSTACLE) continue;
+        for(let r2=r1;r2<ROWS;r2++) for(let c2=0;c2<COLS;c2++){
+          if(r1===r2 && c2<=c1) continue;
+          if(state.raw[r2][c2]!==v) continue;
+          const path=canConnect(r1+1,c1+1,r2+1,c2+1); if(path) return {r1,c1,r2,c2,path};
+        }
+      }
+      return null;
+    }
+    function hint(){
+      if(state.paused) return;
+      const p=findAnyPair();
+      if(!p){ toast('Không còn nước đi!'); return; }
+      const idx1=p.r1*COLS+p.c1, idx2=p.r2*COLS+p.c2, tiles=[...board.querySelectorAll('.tile')];
+      tiles[idx1].classList.add('sel'); tiles[idx2].classList.add('sel'); drawPath(p.path);
+      setTimeout(()=>{ tiles[idx1].classList.remove('sel'); tiles[idx2].classList.remove('sel'); }, 500);
+    }
+    function shuffleBoard(force=false){
+      if(state.paused) return;
+      if(!force){
+        if(state.shufflesLeft<=0){ toast('Hết lượt xáo trộn'); return; }
+        state.shufflesLeft--; $shuffles.textContent=state.shufflesLeft;
+      }
+      const items=[];
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+        const v=state.raw[r][c]; if(v && v!==OBSTACLE) items.push(v);
+      }
+      const mixed=shuffle(items); let k=0;
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+        const v=state.raw[r][c];
+        if(v===OBSTACLE) continue;
+        if(v!=='') state.raw[r][c]=mixed[k++];
+      }
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) state.grid[r+1][c+1]=state.raw[r][c];
+      draw();
+    }
+
+    // ====== AUTO SHUFFLE LOOP ======
+    function startAutoShuffleLoop(){
+      stopAutoShuffleLoop();
+      state.autoShuffleTimerId=setInterval(()=>{
+        if(state.paused || !state.autoShuffle) return;
+        if(!findAnyPair()) shuffleBoard(true);
+      }, 2000);
+    }
+    function stopAutoShuffleLoop(){ if(state.autoShuffleTimerId){ clearInterval(state.autoShuffleTimerId); state.autoShuffleTimerId=null; } }
+
+    // ====== PAUSE/RESUME + PHÍM TẮT ======
+    function setButtonsDisabled(dis){
+      document.getElementById('btnHint').disabled=dis;
+      document.getElementById('btnShuffle').disabled=dis;
+      document.getElementById('btnRestart').disabled=dis;
+    }
+    function pauseGame(){ if(state.paused) return; state.paused=true; stopTimer(); setButtonsDisabled(true); $overlay.hidden=false; toast('Đã tạm dừng'); }
+    function resumeGame(){ if(!state.paused) return; state.paused=false; resetTimer(true); setButtonsDisabled(false); $overlay.hidden=true; toast('Tiếp tục'); }
+
+    document.getElementById('btnHint').addEventListener('click', hint);
+    document.getElementById('btnShuffle').addEventListener('click', ()=> shuffleBoard(false));
+    document.getElementById('btnPause').addEventListener('click', ()=> state.paused? resumeGame() : pauseGame());
+    document.getElementById('btnRestart').addEventListener('click', ()=>{ state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
+    $btnResume.addEventListener('click', resumeGame);
+    $btnRestart2.addEventListener('click', ()=>{ $overlay.hidden=true; state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
+
+    document.addEventListener('keydown', e=>{
+      if(e.repeat) return; const k=e.key.toLowerCase();
+      if(k==='p'){ state.paused? resumeGame() : pauseGame(); }
+      else if(k==='h' && !state.paused){ hint(); }
+      else if(k==='r'){ state.score=0; updateScore(); startLevel(1); saveLastLevel(1); }
+    });
+
+    $optAutoShuffle.addEventListener('change', ()=>{ state.autoShuffle=$optAutoShuffle.checked; saveOptions(); if(state.autoShuffle) startAutoShuffleLoop(); else stopAutoShuffleLoop(); });
+    $optFastTimer.addEventListener('change', ()=>{ state.fastTimer=$optFastTimer.checked; saveOptions(); if(!state.paused) resetTimer(true); });
+
+    // ====== KHỞI ĐỘNG ======
+    (function renderLegend(){
+      const legend=document.getElementById('legend'); legend.innerHTML='';
+      for(let i=1;i<=8;i++){ const d=document.createElement('div'); d.className='tile';
+        const img=document.createElement('img'); img.alt=`icon_${i}`; img.src=ASSET.iconUrl(i);
+        img.onerror=()=>{ img.remove(); d.textContent=String(i); };
+        d.appendChild(img); legend.appendChild(d);
+      }
+      const ob=document.createElement('div'); ob.className='tile obstacle';
+      const oi=document.createElement('img'); oi.alt='Obstacle'; oi.src=ASSET.obstacleUrl;
+      oi.onerror=()=>{ oi.remove(); ob.textContent='🪨'; };
+      ob.appendChild(oi); legend.appendChild(ob);
+    })();
+
+    loadPersist(); startLevel(state.level||1); startAutoShuffleLoop();
   </script>
 </body>
 </html>
