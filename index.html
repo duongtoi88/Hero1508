@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nối Thú Cổ Điển – HTML5 v0.2</title>
+  <title>Nối Thú Cổ Điển – HTML5</title>
   <link rel="stylesheet" href="styles/style.css" />
 </head>
 <body>
@@ -32,41 +32,15 @@
         <h2>Tiến độ</h2>
         <div class="progress"><div id="timebar" class="bar"></div></div>
       </div>
-
-      <div class="sep"></div>
-      <h2>Cài đặt</h2>
-      <label class="toggle">
-        <input id="optAutoShuffle" type="checkbox" checked />
-        <span>Tự xáo trộn khi bí</span>
-      </label>
-      <label class="toggle">
-        <input id="optFastTimer" type="checkbox" />
-        <span>Timer nhanh (debug)</span>
-      </label>
-      <div id="srLive" class="sr-only" aria-live="polite"></div>
-
-      <div class="footer">MVP v0.2: pause overlay, hotkeys, localStorage, options, a11y</div>
+      <div class="footer">MVP bám theo GDD: 10x8, tối đa 2 góc rẽ, combo 2s có thưởng, 7 level (vật cản từ Lv4), quy đổi thời gian thành điểm khi hoàn thành.</div>
     </section>
 
     <section class="board-wrap">
-      <div class="board" id="board" style="--cols: 8" role="grid" aria-label="Bàn chơi nối thú"></div>
-      <svg class="path" id="pathLayer"></svg>
+      <div class="board" id="board" style="--cols: 8"></div>
     </section>
   </main>
 
   <div class="toast" id="toast"></div>
-
-  <div id="overlay" class="overlay" hidden>
-    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="pausedTitle">
-      <h3 id="pausedTitle">Tạm dừng</h3>
-      <p>Nhấn <kbd>P</kbd> hoặc nút “Tiếp tục” để chơi tiếp.</p>
-      <div class="row">
-        <button id="btnResume" class="primary">Tiếp tục</button>
-        <button id="btnRestart2" class="bad">Chơi lại</button>
-      </div>
-      <p class="hint">Phím tắt: <kbd>P</kbd> pause, <kbd>H</kbd> hint, <kbd>R</kbd> restart</p>
-    </div>
-  </div>
 
   <script src="scripts/game.js" defer></script>
 </body>

@@ -22,23 +22,16 @@ const state = {
   combo: 0,
   timeLeft: 0,
   timerId: null,
+  comboTimerId: null,
   lastMatchAt: 0,
   shufflesLeft: 0,
   grid: [],       // ma trận có viền rỗng để hỗ trợ đi ngoài rìa
   raw: [],        // ma trận hiển thị (không viền)
   lock: false,
   sel: null,
-
-  // v0.2
-  paused: false,
-  autoShuffle: true,
-  fastTimer: false,
-  autoShuffleTimerId: null,
 };
 
-// ---- DOM ----
 const board = document.getElementById('board');
-const pathLayer = document.getElementById('pathLayer');
 const $level = document.getElementById('level');
 const $score = document.getElementById('score');
 const $combo = document.getElementById('combo');
@@ -47,41 +40,14 @@ const $timebar = document.getElementById('timebar');
 const $toast = document.getElementById('toast');
 const $shuffles = document.getElementById('shuffles');
 
-// v0.2 DOM
-const $overlay = document.getElementById('overlay');
-const $btnResume = document.getElementById('btnResume');
-const $btnRestart2 = document.getElementById('btnRestart2');
-const $optAutoShuffle = document.getElementById('optAutoShuffle');
-const $optFastTimer = document.getElementById('optFastTimer');
-const $srLive = document.getElementById('srLive');
-
 // ---- TIỆN ÍCH ----
 const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const shuffle=inArr=>{const a=[...inArr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const now=()=>performance.now();
 
-function speak(msg){ if($srLive){ $srLive.textContent = msg; } }
 function toast(msg){
   $toast.textContent=msg; $toast.classList.add('show');
-  speak(msg);
   setTimeout(()=> $toast.classList.remove('show'), 1200);
-}
-
-// ---- LOCAL STORAGE (v0.2) ----
-const LS = { BEST:'onet_bestScore', LAST:'onet_lastLevel', OPTS:'onet_options' };
-function saveBest(score){
-  const cur = Number(localStorage.getItem(LS.BEST) || 0);
-  if(score > cur){ localStorage.setItem(LS.BEST, String(score)); toast(`🏆 Best mới: ${score}`); }
-}
-function saveLastLevel(level){ localStorage.setItem(LS.LAST, String(level)); }
-function saveOptions(){ localStorage.setItem(LS.OPTS, JSON.stringify({autoShuffle:state.autoShuffle, fastTimer:state.fastTimer})); }
-function loadPersist(){
-  const best = Number(localStorage.getItem(LS.BEST) || 0);
-  const last = Number(localStorage.getItem(LS.LAST) || 1);
-  const opts = JSON.parse(localStorage.getItem(LS.OPTS) || '{}');
-  if(last>=1 && last<=LEVELS.length){ state.level = last; }
-  if(opts.autoShuffle !== undefined){ state.autoShuffle = !!opts.autoShuffle; if($optAutoShuffle) $optAutoShuffle.checked = state.autoShuffle; }
-  if(opts.fastTimer !== undefined){ state.fastTimer = !!opts.fastTimer; if($optFastTimer) $optFastTimer.checked = state.fastTimer; }
 }
 
 // ---- KHỞI TẠO LEVEL ----
@@ -117,10 +83,13 @@ function startLevel(n){
   resetTimer();
 }
 
-// ---- VẼ BOARD ----
 function draw(){
   board.innerHTML='';
   board.style.setProperty('--cols', COLS);
+  // layer path
+  const pathLayer = document.createElement('svg');
+  pathLayer.className='path'; pathLayer.setAttribute('viewBox',`0 0 ${(COLS)*(64+8)} ${(ROWS)*(64+8)}`);
+  board.appendChild(pathLayer);
 
   for(let r=0;r<ROWS;r++){
     for(let c=0;c<COLS;c++){
@@ -131,16 +100,14 @@ function draw(){
       else if(val===OBSTACLE){ div.classList.add('obstacle'); div.textContent=OBSTACLE; }
       else { div.textContent=val; }
       div.dataset.r=r; div.dataset.c=c;
-      div.setAttribute('role','gridcell');
       div.addEventListener('click', onClickTile);
       board.appendChild(div);
     }
   }
 }
 
-// ---- CLICK ----
 function onClickTile(e){
-  if(state.lock || state.paused) return;
+  if(state.lock) return;
   const r = +e.currentTarget.dataset.r;
   const c = +e.currentTarget.dataset.c;
   const v = state.raw[r][c];
@@ -175,11 +142,9 @@ function onClickTile(e){
   }
 }
 
-// ---- VẼ ĐƯỜNG NỐI ----
 function drawPath(nodes){
-  const svg = pathLayer;
+  const svg = board.querySelector('svg.path');
   svg.innerHTML='';
-  svg.setAttribute('viewBox',`0 0 ${(COLS)*(64+8)} ${(ROWS)*(64+8)}`);
   const g = document.createElementNS('http://www.w3.org/2000/svg','polyline');
   g.setAttribute('fill','none');
   g.setAttribute('stroke','url(#grad)');
@@ -202,7 +167,6 @@ function drawPath(nodes){
   setTimeout(()=> svg.innerHTML='', 280);
 }
 
-// ---- MATCH ----
 function match(a,b){
   // xóa
   state.raw[a.r][a.c]='';
@@ -242,7 +206,6 @@ function match(a,b){
   }
 }
 
-// ---- GRAVITY ----
 function applyGravity(){
   for(let c=0;c<COLS;c++){
     let stack=[]; // từ dưới lên
@@ -274,10 +237,6 @@ function levelClear(){
   state.score += bonus; updateScore();
   toast(`Hoàn thành level! +${bonus} điểm thời gian`);
 
-  saveBest(state.score);
-  saveLastLevel(state.level + 1 <= LEVELS.length ? state.level + 1 : LEVELS.length);
-  saveOptions();
-
   if(state.level<LEVELS.length){
     setTimeout(()=> startLevel(state.level+1), 900);
   } else {
@@ -285,16 +244,13 @@ function levelClear(){
   }
 }
 
-// ---- TIMER (v0.2 hỗ trợ resume/nhanh) ----
-function resetTimer(resume=false){
+// ---- TIMER ----
+function resetTimer(){
   stopTimer();
-  const cfg = LEVELS[state.level-1];
-  const total = resume ? state.timeLeft : cfg.time;
-  const speed = state.fastTimer ? 2 : 1; // fast: hao nhanh gấp đôi
+  const total = LEVELS[state.level-1].time;
   const start = performance.now();
   state.timerId = setInterval(()=>{
-    if(state.paused){ return; }
-    const dt = Math.floor((performance.now()-start)/1000) * speed;
+    const dt = Math.floor((performance.now()-start)/1000);
     state.timeLeft = Math.max(0, total - dt);
     updateTime();
     if(state.timeLeft<=0){ gameOver(); }
@@ -316,9 +272,6 @@ function updateCombo(){ $combo.textContent = state.combo; }
 function gameOver(){
   stopTimer();
   alert('⏰ Hết thời gian! Thua cuộc.');
-  saveBest(state.score);
-  saveLastLevel(1);
-  saveOptions();
   startLevel(1); state.score=0; updateScore();
 }
 
@@ -355,16 +308,18 @@ function canConnect(r1,c1,r2,c2){
 
   function restore(){ state.grid[r1][c1]=val; state.grid[r2][c2]=val; }
 }
+
 function isEmpty(r,c){ return state.grid[r] && state.grid[r][c]===""; }
+
 function clearLine(r1,c1,r2,c2){
   if(r1===r2){ // ngang
     const [a,b] = c1<c2 ? [c1,c2] : [c2,c1];
-    for(let c=a+1;c<b;c++) if(state.grid[r1][c] !== "") return false;
+    for(let c=a+1;c<b;c++) if(state.grid[r1][c]!=="") return false;
     return true;
   }
   if(c1===c2){ // dọc
     const [a,b] = r1<r2 ? [r1,r2] : [r2,r1];
-    for(let r=a+1;r<b;r++) if(state.grid[r][c1] !== "") return false;
+    for(let r=a+1;r<b;r++) if(state.grid[r][c1]!=="") return false;
     return true;
   }
   return false; // chỉ kiểm tra đường thẳng
@@ -384,8 +339,8 @@ function findAnyPair(){
   }
   return null;
 }
+
 function hint(){
-  if(state.paused) return;
   const p = findAnyPair();
   if(!p){ toast('Không còn nước đi!'); return; }
   // highlight
@@ -396,8 +351,8 @@ function hint(){
   drawPath(p.path);
   setTimeout(()=>{ tiles[idx1].classList.remove('sel'); tiles[idx2].classList.remove('sel'); }, 500);
 }
+
 function shuffleBoard(force=false){
-  if(state.paused) return;
   if(!force){
     if(state.shufflesLeft<=0){ toast('Hết lượt xáo trộn'); return; }
     state.shufflesLeft--; $shuffles.textContent=state.shufflesLeft;
@@ -418,68 +373,17 @@ function shuffleBoard(force=false){
   draw();
 }
 
-// ---- AUTO SHUFFLE LOOP (v0.2) ----
-function startAutoShuffleLoop(){
-  stopAutoShuffleLoop();
-  state.autoShuffleTimerId = setInterval(()=>{
-    if(state.paused || !state.autoShuffle) return;
-    if(!findAnyPair()) shuffleBoard(true);
-  }, 2000);
-}
-function stopAutoShuffleLoop(){
-  if(state.autoShuffleTimerId){ clearInterval(state.autoShuffleTimerId); state.autoShuffleTimerId = null; }
-}
-
-// ---- PAUSE/RESUME (v0.2) ----
-function setButtonsDisabled(disabled){
-  document.getElementById('btnHint').disabled = disabled;
-  document.getElementById('btnShuffle').disabled = disabled;
-  document.getElementById('btnRestart').disabled = disabled;
-}
-function pauseGame(){
-  if(state.paused) return;
-  state.paused = true;
-  stopTimer();
-  setButtonsDisabled(true);
-  $overlay.hidden = false;
-  toast('Đã tạm dừng'); speak('Đã tạm dừng');
-}
-function resumeGame(){
-  if(!state.paused) return;
-  state.paused = false;
-  resetTimer(true);
-  setButtonsDisabled(false);
-  $overlay.hidden = true;
-  toast('Tiếp tục'); speak('Tiếp tục');
-}
-
 // ---- SỰ KIỆN UI ----
 document.getElementById('btnHint').addEventListener('click', hint);
-document.getElementById('btnShuffle').addEventListener('click', ()=>{ shuffleBoard(false); });
-document.getElementById('btnPause').addEventListener('click', ()=>{ state.paused? resumeGame() : pauseGame(); });
-document.getElementById('btnRestart').addEventListener('click', ()=>{ state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
-$btnResume.addEventListener('click', resumeGame);
-$btnRestart2.addEventListener('click', ()=>{ $overlay.hidden = true; state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
-
-// ---- HOTKEYS ----
-document.addEventListener('keydown', (e)=>{
-  if(e.repeat) return;
-  const k = e.key.toLowerCase();
-  if(k==='p'){ state.paused? resumeGame() : pauseGame(); }
-  else if(k==='h' && !state.paused){ hint(); }
-  else if(k==='r'){ state.score=0; updateScore(); startLevel(1); saveLastLevel(1); }
+document.getElementById('btnShuffle').addEventListener('click', ()=>{
+  shuffleBoard(false);
 });
-
-// ---- OPTIONS ----
-$optAutoShuffle.addEventListener('change', ()=>{
-  state.autoShuffle = $optAutoShuffle.checked;
-  saveOptions();
-  if(state.autoShuffle) startAutoShuffleLoop(); else stopAutoShuffleLoop();
+document.getElementById('btnPause').addEventListener('click', ()=>{
+  if(state.timerId){ stopTimer(); toast('Đã tạm dừng'); }
+  else { resetTimer(); toast('Tiếp tục'); }
 });
-$optFastTimer.addEventListener('change', ()=>{
-  state.fastTimer = $optFastTimer.checked;
-  saveOptions();
-  if(!state.paused){ resetTimer(true); }
+document.getElementById('btnRestart').addEventListener('click', ()=>{
+  state.score=0; updateScore(); startLevel(1);
 });
 
 // ---- LEGEND ----
@@ -491,6 +395,6 @@ $optFastTimer.addEventListener('change', ()=>{
 })();
 
 // ---- BẮT ĐẦU ----
-loadPersist();
-startLevel(state.level || 1);
-startAutoShuffleLoop();
+startLevel(1);
+// đảm bảo luôn có nước đi; nếu không, auto xáo trộn ẩn
+setInterval(()=>{ if(!findAnyPair()) shuffleBoard(true); }, 2000);
