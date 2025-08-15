@@ -455,6 +455,8 @@
     document.getElementById('btnRestart').addEventListener('click', ()=>{ state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
     $btnResume.addEventListener('click', resumeGame);
     $btnRestart2.addEventListener('click', ()=>{ $overlay.hidden=true; state.score=0; updateScore(); startLevel(1); saveLastLevel(1); });
+/* đảm bảo phần tử có [hidden] thật sự ẩn */
+.overlay[hidden]{ display: none !important; }
 
     document.addEventListener('keydown', e=>{
       if(e.repeat) return; const k=e.key.toLowerCase();
@@ -484,3 +486,4 @@
   </script>
 </body>
 </html>
+
