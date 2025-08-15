@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nối Thú Cổ Điển – HTML5 v0.2</title>
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+<body>
+  <header>
+    <div class="title">🐾 Nối Thú Cổ Điển – HTML5</div>
+    <div class="stats">
+      <div class="badge">Level: <b id="level">1</b>/7</div>
+      <div class="badge">Điểm: <b id="score">0</b></div>
+      <div class="badge">Combo: <b id="combo">0</b></div>
+      <div class="badge">⏳ <b id="time">150</b>s</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="side">
+      <h2>Điều khiển</h2>
+      <div class="controls">
+        <button id="btnHint">Gợi ý</button>
+        <button id="btnShuffle" class="warn">Xáo trộn (<span id="shuffles">3</span>)</button>
+        <button id="btnPause">Tạm dừng</button>
+        <button id="btnRestart" class="bad">Chơi lại</button>
+      </div>
+      <h2>Nền tảng</h2>
+      <div class="legend" id="legend"></div>
+      <div>
+        <h2>Tiến độ</h2>
+        <div class="progress"><div id="timebar" class="bar"></div></div>
+      </div>
+
+      <div class="sep"></div>
+      <h2>Cài đặt</h2>
+      <label class="toggle">
+        <input id="optAutoShuffle" type="checkbox" checked />
+        <span>Tự xáo trộn khi bí</span>
+      </label>
+      <label class="toggle">
+        <input id="optFastTimer" type="checkbox" />
+        <span>Timer nhanh (debug)</span>
+      </label>
+      <div id="srLive" class="sr-only" aria-live="polite"></div>
+
+      <div class="footer">MVP v0.2: pause overlay, hotkeys, localStorage, options, a11y</div>
+    </section>
+
+    <section class="board-wrap">
+      <div class="board" id="board" style="--cols: 8" role="grid" aria-label="Bàn chơi nối thú"></div>
+      <svg class="path" id="pathLayer"></svg>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div id="overlay" class="overlay" hidden>
+    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="pausedTitle">
+      <h3 id="pausedTitle">Tạm dừng</h3>
+      <p>Nhấn <kbd>P</kbd> hoặc nút “Tiếp tục” để chơi tiếp.</p>
+      <div class="row">
+        <button id="btnResume" class="primary">Tiếp tục</button>
+        <button id="btnRestart2" class="bad">Chơi lại</button>
+      </div>
+      <p class="hint">Phím tắt: <kbd>P</kbd> pause, <kbd>H</kbd> hint, <kbd>R</kbd> restart</p>
+    </div>
+  </div>
+
+  <script src="scripts/game.js" defer></script>
+</body>
+</html>
