@@ -3,8 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nối Thú Cổ Điển – HTML5</title>
-  <link rel="stylesheet" href="styles/style.css" />
+  <title>Nối Thú Cổ Điển – HTML5 (One-file test)</title>
+  <style>
+    :root{--cell:64px;--gap:8px;--panel:#111827;--card:#1f2937;--txt:#e5e7eb;--accent:#22d3ee}
+    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 800px at 20% 10%,#1e293b 0%,#0b1222 60%,#030712 100%);color:var(--txt)}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #2b3345;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+    .title{font-size:20px;font-weight:700}.stats{display:flex;gap:14px}.badge{padding:6px 10px;border-radius:999px;background:#1f2937;border:1px solid #2b3345}.badge b{color:var(--accent)}
+    main{display:grid;grid-template-columns:320px 1fr;gap:16px;max-width:1200px;margin:18px auto;padding:0 16px 32px}@media(max-width:980px){main{grid-template-columns:1fr}}
+    .side{background:#111827;border:1px solid #2b3345;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+    .side h2{margin:0 0 6px;font-size:16px;color:#c7d2fe}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    button{appearance:none;border:none;background:#1f2937;color:var(--txt);padding:10px 12px;border-radius:12px;border:1px solid #2b3345;cursor:pointer}
+    .warn{background:linear-gradient(180deg,#f59e0b,#d97706)}.bad{background:linear-gradient(180deg,#fb7185,#e11d48)}.primary{background:linear-gradient(180deg,#0ea5e9,#0284c7)}
+    .board-wrap{display:flex;align-items:center;justify-content:center;position:relative}
+    .board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),var(--cell));grid-auto-rows:var(--cell);gap:8px;padding:12px;border-radius:18px;background:rgba(17,24,39,.6);border:1px solid #2b3345;backdrop-filter:blur(6px)}
+    .tile{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:34px;border-radius:14px;background:#0b1020;border:1px solid #2b3345}
+    .tile.obstacle{background:#1b2336}.tile.sel{outline:3px solid var(--accent);filter:drop-shadow(0 0 8px rgba(34,211,238,.35))}.tile.matched{opacity:.2;transform:scale(.9)}
+    .legend{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;font-size:20px}
+    .progress{height:8px;background:#0b1020;border:1px solid #2b3345;border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#34d399,#22d3ee)}
+    .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#111827;border:1px solid #2b3345;padding:8px 12px;border-radius:999px;opacity:0;transition:opacity .2s,transform .2s}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);z-index:20}
+    .overlay-card{background:#0b1020;border:1px solid #2b3345;border-radius:16px;padding:18px;min-width:280px;max-width:90vw}
+    .sep{height:1px;background:#2b3345;margin:6px 0 10px}.toggle{display:flex;gap:8px}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+  </style>
 </head>
 <body>
   <header>
@@ -28,20 +49,80 @@
       </div>
       <h2>Nền tảng</h2>
       <div class="legend" id="legend"></div>
-      <div>
-        <h2>Tiến độ</h2>
-        <div class="progress"><div id="timebar" class="bar"></div></div>
-      </div>
-      <div class="footer">MVP bám theo GDD: 10x8, tối đa 2 góc rẽ, combo 2s có thưởng, 7 level (vật cản từ Lv4), quy đổi thời gian thành điểm khi hoàn thành.</div>
+      <div><h2>Tiến độ</h2><div class="progress"><div id="timebar" class="bar"></div></div></div>
+      <div class="sep"></div>
+      <h2>Cài đặt</h2>
+      <label class="toggle"><input id="optAutoShuffle" type="checkbox" checked /><span>Tự xáo trộn khi bí</span></label>
+      <label class="toggle"><input id="optFastTimer" type="checkbox" /><span>Timer nhanh (debug)</span></label>
+      <div id="srLive" class="sr-only" aria-live="polite"></div>
+      <div class="footer">MVP v0.2</div>
     </section>
 
     <section class="board-wrap">
-      <div class="board" id="board" style="--cols: 8"></div>
+      <div class="board" id="board" style="--cols: 8" role="grid" aria-label="Bàn chơi nối thú"></div>
+      <svg class="path" id="pathLayer"></svg>
     </section>
   </main>
 
   <div class="toast" id="toast"></div>
 
-  <script src="scripts/game.js" defer></script>
+  <div id="overlay" class="overlay" hidden>
+    <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="pausedTitle">
+      <h3 id="pausedTitle">Tạm dừng</h3>
+      <p>Nhấn <kbd>P</kbd> hoặc “Tiếp tục”.</p>
+      <div class="row">
+        <button id="btnResume" class="primary">Tiếp tục</button>
+        <button id="btnRestart2" class="bad">Chơi lại</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === JS GAME (giữ nguyên như bản đã gửi) ===
+    const ROWS=10,COLS=8,ICONS=['🐱','🐶','🐰','🐼','🐟','🐧','🐘','🦒','🦁','🐵','🦉','🦊','🦓','🐆','🐍'],OBSTACLE='🪨';
+    const LEVELS=[{time:150,types:5,obstacles:0,shuffles:3},{time:120,types:7,obstacles:0,shuffles:3},{time:100,types:9,obstacles:0,shuffles:3},{time:85,types:11,obstacles:8,shuffles:3},{time:70,types:13,obstacles:12,shuffles:3},{time:60,types:14,obstacles:16,shuffles:2},{time:50,types:15,obstacles:22,shuffles:2}];
+    const state={level:1,score:0,combo:0,timeLeft:0,timerId:null,lastMatchAt:0,shufflesLeft:0,grid:[],raw:[],lock:false,sel:null,paused:false,autoShuffle:true,fastTimer:false,autoShuffleTimerId:null};
+    const board=document.getElementById('board'),pathLayer=document.getElementById('pathLayer'),$level=document.getElementById('level'),$score=document.getElementById('score'),$combo=document.getElementById('combo'),$time=document.getElementById('time'),$timebar=document.getElementById('timebar'),$toast=document.getElementById('toast'),$shuffles=document.getElementById('shuffles'),$overlay=document.getElementById('overlay'),$btnResume=document.getElementById('btnResume'),$btnRestart2=document.getElementById('btnRestart2'),$optAutoShuffle=document.getElementById('optAutoShuffle'),$optFastTimer=document.getElementById('optFastTimer'),$srLive=document.getElementById('srLive');
+    const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a},now=()=>performance.now();
+    function speak(m){if($srLive)$srLive.textContent=m}function toast(m){$toast.textContent=m;$toast.classList.add('show');speak(m);setTimeout(()=>{$toast.classList.remove('show')},1200)}
+    const LS={BEST:'onet_bestScore',LAST:'onet_lastLevel',OPTS:'onet_options'};
+    function saveBest(s){const c=Number(localStorage.getItem(LS.BEST)||0);if(s>c){localStorage.setItem(LS.BEST,String(s));toast(`🏆 Best mới: ${s}`)}}
+    function saveLastLevel(l){localStorage.setItem(LS.LAST,String(l))}function saveOptions(){localStorage.setItem(LS.OPTS,JSON.stringify({autoShuffle:state.autoShuffle,fastTimer:state.fastTimer}))}
+    function loadPersist(){const last=Number(localStorage.getItem(LS.LAST)||1),opts=JSON.parse(localStorage.getItem(LS.OPTS)||'{}');if(last>=1&&last<=LEVELS.length)state.level=last;if(opts.autoShuffle!==undefined){state.autoShuffle=!!opts.autoShuffle;$optAutoShuffle.checked=state.autoShuffle}if(opts.fastTimer!==undefined){state.fastTimer=!!opts.fastTimer;$optFastTimer.checked=state.fastTimer}}
+    function startLevel(n){state.level=n;const cfg=LEVELS[n-1];$level.textContent=n;state.combo=0;updateCombo();state.timeLeft=cfg.time;updateTime();state.shufflesLeft=cfg.shuffles;$shuffles.textContent=state.shufflesLeft;const pairsCount=Math.floor((ROWS*COLS-cfg.obstacles)/2),set=ICONS.slice(0,cfg.types);const pairs=[];for(let i=0;i<pairsCount;i++){const ic=set[i%set.length];pairs.push(ic,ic)}const cells=shuffle(pairs);let obstacles=cfg.obstacles;while(obstacles-->0){const pos=randInt(0,ROWS*COLS-1);cells.splice(pos,0,OBSTACLE)}const flat=cells.slice(0,ROWS*COLS);state.raw=Array.from({length:ROWS},(_,r)=>flat.slice(r*COLS,(r+1)*COLS));state.grid=Array.from({length:ROWS+2},()=>Array(COLS+2).fill(''));for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)state.grid[r+1][c+1]=state.raw[r][c];draw();resetTimer()}
+    function draw(){board.innerHTML='';board.style.setProperty('--cols',COLS);for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const v=state.raw[r][c];const d=document.createElement('div');d.className='tile';if(v===''){d.style.visibility='hidden'}else if(v===OBSTACLE){d.classList.add('obstacle');d.textContent=OBSTACLE}else{d.textContent=v}d.dataset.r=r;d.dataset.c=c;d.setAttribute('role','gridcell');d.addEventListener('click',onClickTile);board.appendChild(d)}}}
+    function onClickTile(e){if(state.lock||state.paused)return;const r=+e.currentTarget.dataset.r,c=+e.currentTarget.dataset.c,v=state.raw[r][c];if(!v||v===OBSTACLE)return;if(!state.sel){state.sel={r,c,v,el:e.currentTarget};e.currentTarget.classList.add('sel');return}const a=state.sel,b={r,c,v,el:e.currentTarget};if(a.r===b.r&&a.c===b.c){a.el.classList.remove('sel');state.sel=null;return}if(a.v!==b.v){a.el.classList.remove('sel');state.sel=b;b.el.classList.add('sel');return}const path=canConnect(a.r+1,a.c+1,b.r+1,b.c+1);if(path){drawPath(path);match(a,b)}else{toast('Không nối được!');a.el.classList.remove('sel');state.sel=b;b.el.classList.add('sel')}}
+    function drawPath(nodes){const svg=pathLayer;svg.innerHTML='';svg.setAttribute('viewBox',`0 0 ${(COLS)*(64+8)} ${(ROWS)*(64+8)}`);const g=document.createElementNS('http://www.w3.org/2000/svg','polyline');g.setAttribute('fill','none');g.setAttribute('stroke','url(#grad)');g.setAttribute('stroke-width','6');const pts=nodes.map(([R,C])=>{const x=(C-1)*(64+8)+32+12,y=(R-1)*(64+8)+32+12;return `${x},${y}`}).join(' ');g.setAttribute('points',pts);const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');const grad=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');grad.id='grad';grad.setAttribute('x1','0%');grad.setAttribute('x2','100%');grad.setAttribute('y1','0%');grad.setAttribute('y2','0%');const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');s1.setAttribute('offset','0%');s1.setAttribute('stop-color','#34d399');const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');s2.setAttribute('offset','100%');s2.setAttribute('stop-color','#22d3ee');grad.appendChild(s1);grad.appendChild(s2);defs.appendChild(grad);svg.appendChild(defs);svg.appendChild(g);setTimeout(()=>svg.innerHTML='',280)}
+    function match(a,b){state.raw[a.r][a.c]='';state.raw[b.r][b.c]='';state.grid[a.r+1][a.c+1]='';state.grid[b.r+1][b.c+1]='';a.el.classList.remove('sel');a.el.classList.add('matched');b.el.classList.add('matched');state.sel=null;const base=10,t=performance.now();if(t-state.lastMatchAt<=2000)state.combo++;else state.combo=1;state.lastMatchAt=t;let bonus=0;if(state.combo===2)bonus=10;else if(state.combo===3)bonus=20;else if(state.combo===4){bonus=30;addTime(5);toast('+5s ✨ Combo 4')}else if(state.combo>=5)bonus=40;state.score+=base+bonus;updateScore();updateCombo();applyGravity();draw();if(isBoardCleared())levelClear()}
+    function applyGravity(){for(let c=0;c<COLS;c++){let stack=[];for(let r=ROWS-1;r>=0;r--){const v=state.raw[r][c];if(v==='')continue;stack.push(v)}for(let r=ROWS-1;r>=0;r--){state.raw[r][c]=stack[ROWS-1-r]??''}}for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)state.grid[r+1][c+1]=state.raw[r][c]}
+    function isBoardCleared(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const v=state.raw[r][c];if(v&&v!==OBSTACLE)return false}return true}
+    function levelClear(){stopTimer();const remain=Math.max(0,state.timeLeft),bonus=remain*10;state.score+=bonus;updateScore();toast(`Hoàn thành level! +${bonus} điểm`);saveBest(state.score);saveLastLevel(state.level+1<=LEVELS.length?state.level+1:LEVELS.length);saveOptions();if(state.level<LEVELS.length){setTimeout(()=>startLevel(state.level+1),900)}else{setTimeout(()=>alert(`🎉 Thắng game! Tổng điểm: ${state.score}`),600)}}
+    function resetTimer(resume=false){stopTimer();const cfg=LEVELS[state.level-1],total=resume?state.timeLeft:cfg.time,speed=state.fastTimer?2:1,start=performance.now();state.timerId=setInterval(()=>{if(state.paused)return;const dt=Math.floor((performance.now()-start)/1000)*speed;state.timeLeft=Math.max(0,total-dt);updateTime();if(state.timeLeft<=0)gameOver()},250)}
+    function stopTimer(){if(state.timerId){clearInterval(state.timerId);state.timerId=null}}function addTime(s){state.timeLeft+=s;updateTime(true)}
+    function updateTime(boost=false){$time.textContent=state.timeLeft;const cfg=LEVELS[state.level-1],p=Math.max(0,Math.min(1,state.timeLeft/cfg.time));$timebar.style.width=(p*100)+'%';if(boost){$timebar.animate([{transform:'scaleY(1)'},{transform:'scaleY(1.3)'}],{duration:180})}}
+    function updateScore(){$score.textContent=state.score}function updateCombo(){$combo.textContent=state.combo}
+    function gameOver(){stopTimer();alert('⏰ Hết thời gian!');saveBest(state.score);saveLastLevel(1);saveOptions();startLevel(1);state.score=0;updateScore()}
+    function canConnect(r1,c1,r2,c2){if(r1===r2&&c1===c2)return null;if(state.grid[r1][c1]!==state.grid[r2][c2])return null;if(state.grid[r1][c1]==='🪨'||!state.grid[r1][c1])return null;const val=state.grid[r1][c1];state.grid[r1][c1]='';state.grid[r2][c2]='';if(clearLine(r1,c1,r2,c2)){restore();return [[r1,c1],[r2,c2]]}if(isEmpty(r1,c2)&&clearLine(r1,c1,r1,c2)&&clearLine(r1,c2,r2,c2)){restore();return [[r1,c1],[r1,c2],[r2,c2]]}if(isEmpty(r2,c1)&&clearLine(r1,c1,r2,c1)&&clearLine(r2,c1,r2,c2)){restore();return [[r1,c1],[r2,c1],[r2,c2]]}for(let cc=0;cc<state.grid[0].length;cc++){if(cc===c1||cc===c2)continue;if(isEmpty(r1,cc)&&isEmpty(r2,cc)&&clearLine(r1,c1,r1,cc)&&clearLine(r1,cc,r2,cc)&&clearLine(r2,cc,r2,c2)){restore();return [[r1,c1],[r1,cc],[r2,cc],[r2,c2]]}}for(let rr=0;rr<state.grid.length;rr++){if(rr===r1||rr===r2)continue;if(isEmpty(rr,c1)&&isEmpty(rr,c2)&&clearLine(r1,c1,rr,c1)&&clearLine(rr,c1,rr,c2)&&clearLine(rr,c2,r2,c2)){restore();return [[r1,c1],[rr,c1],[rr,c2],[r2,c2]]}}restore();return null;function restore(){state.grid[r1][c1]=val;state.grid[r2][c2]=val}}
+    function isEmpty(r,c){return state.grid[r]&&state.grid[r][c]===''}function clearLine(r1,c1,r2,c2){if(r1===r2){const[a,b]=c1<c2?[c1,c2]:[c2,c1];for(let c=a+1;c<b;c++)if(state.grid[r1][c]!=='')return false;return true}if(c1===c2){const[a,b]=r1<r2?[r1,r2]:[r2,r1];for(let r=a+1;r<b;r++)if(state.grid[r][c1]!=='')return false;return true}return false}
+    function findAnyPair(){for(let r1=0;r1<ROWS;r1++)for(let c1=0;c1<COLS;c1++){const v=state.raw[r1][c1];if(!v||v==='🪨')continue;for(let r2=r1;r2<ROWS;r2++)for(let c2=0;c2<COLS;c2++){if(r1===r2&&c2<=c1)continue;if(state.raw[r2][c2]!==v)continue;const path=canConnect(r1+1,c1+1,r2+1,c2+1);if(path)return{r1,c1,r2,c2,path}}}return null}
+    function hint(){if(state.paused)return;const p=findAnyPair();if(!p){toast('Không còn nước đi!');return}const idx1=p.r1*COLS+p.c1,idx2=p.r2*COLS+p.c2,tiles=[...board.querySelectorAll('.tile')];tiles[idx1].classList.add('sel');tiles[idx2].classList.add('sel');drawPath(p.path);setTimeout(()=>{tiles[idx1].classList.remove('sel');tiles[idx2].classList.remove('sel')},500)}
+    function shuffleBoard(force=false){if(state.paused)return;if(!force){if(state.shufflesLeft<=0){toast('Hết lượt xáo trộn');return}state.shufflesLeft--; $shuffles.textContent=state.shufflesLeft}const items=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const v=state.raw[r][c];if(v&&v!=='🪨')items.push(v)}const mixed=shuffle(items);let k=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const v=state.raw[r][c];if(v==='🪨')continue;if(v!=='')state.raw[r][c]=mixed[k++]}for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)state.grid[r+1][c+1]=state.raw[r][c];draw()}
+    function startAutoShuffleLoop(){stopAutoShuffleLoop();state.autoShuffleTimerId=setInterval(()=>{if(state.paused||!state.autoShuffle)return;if(!findAnyPair())shuffleBoard(true)},2000)}
+    function stopAutoShuffleLoop(){if(state.autoShuffleTimerId){clearInterval(state.autoShuffleTimerId);state.autoShuffleTimerId=null}}
+    function setButtonsDisabled(dis){document.getElementById('btnHint').disabled=dis;document.getElementById('btnShuffle').disabled=dis;document.getElementById('btnRestart').disabled=dis}
+    function pauseGame(){if(state.paused)return;state.paused=true;stopTimer();setButtonsDisabled(true);$overlay.hidden=false;toast('Đã tạm dừng')}
+    function resumeGame(){if(!state.paused)return;state.paused=false;resetTimer(true);setButtonsDisabled(false);$overlay.hidden=true;toast('Tiếp tục')}
+    document.getElementById('btnHint').addEventListener('click',hint);
+    document.getElementById('btnShuffle').addEventListener('click',()=>shuffleBoard(false));
+    document.getElementById('btnPause').addEventListener('click',()=>state.paused?resumeGame():pauseGame());
+    document.getElementById('btnRestart').addEventListener('click',()=>{state.score=0;updateScore();startLevel(1);saveLastLevel(1)});
+    $btnResume.addEventListener('click',resumeGame);
+    $btnRestart2.addEventListener('click',()=>{$overlay.hidden=true;state.score=0;updateScore();startLevel(1);saveLastLevel(1)});
+    document.addEventListener('keydown',e=>{if(e.repeat)return;const k=e.key.toLowerCase();if(k==='p'){state.paused?resumeGame():pauseGame()}else if(k==='h'&&!state.paused){hint()}else if(k==='r'){state.score=0;updateScore();startLevel(1);saveLastLevel(1)}});
+    $optAutoShuffle.addEventListener('change',()=>{state.autoShuffle=$optAutoShuffle.checked;saveOptions();if(state.autoShuffle)startAutoShuffleLoop();else stopAutoShuffleLoop()});
+    $optFastTimer.addEventListener('change',()=>{state.fastTimer=$optFastTimer.checked;saveOptions();if(!state.paused)resetTimer(true)});
+    (function legend(){const L=document.getElementById('legend');for(const ic of ICONS){const s=document.createElement('div');s.className='tile';s.textContent=ic;L.appendChild(s)}const ob=document.createElement('div');ob.className='tile obstacle';ob.textContent='🪨';L.appendChild(ob)})();
+    loadPersist();startLevel(state.level||1);startAutoShuffleLoop();
+  </script>
 </body>
 </html>
